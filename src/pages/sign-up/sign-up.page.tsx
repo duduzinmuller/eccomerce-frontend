@@ -12,15 +12,20 @@ import {
   SignUpInputContainer
 } from './sign-up.styles'
 import InputErrorMessage from '../../components/input-error-message/input-error-message.component'
+import { createUserWithEmailAndPassword } from 'firebase/auth'
+import { auth, db } from '../../config/firebase.config'
+import { addDoc, collection } from 'firebase/firestore'
+import { useNavigate } from 'react-router-dom'
 
 interface SignUpForm {
-  name: string
+  firstName: string
   lastname: string
   email: string
   password: string
   passwordConfirmation: string
 }
 const SignUpPage = () => {
+  const navigation = useNavigate()
   const {
     register,
     handleSubmit,
@@ -30,8 +35,25 @@ const SignUpPage = () => {
 
   const watchPassword = watch('password')
 
-  const handleSubmitPress = (data: SignUpForm) => {
-    console.log({ data })
+  const handleSubmitPress = async (data: SignUpForm) => {
+    try {
+      const userCredentials = await createUserWithEmailAndPassword(
+        auth,
+        data.email,
+        data.password
+      )
+
+      await addDoc(collection(db, 'users'), {
+        id: userCredentials.user.uid,
+        firstName: data.firstName,
+        lastName: data.lastname,
+        email: userCredentials.user.email
+      })
+
+      navigation('/')
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   return (
@@ -44,13 +66,13 @@ const SignUpPage = () => {
           <SignUpInputContainer>
             <p>Nome</p>
             <CustomInput
-              hasError={!!errors?.name}
+              hasError={!!errors?.firstName}
               placeholder='Digite seu nome'
-              {...register('name', {
+              {...register('firstName', {
                 required: true
               })}
             />
-            {errors?.name?.type === 'required' && (
+            {errors?.firstName?.type === 'required' && (
               <InputErrorMessage>O nome é obrigatório.</InputErrorMessage>
             )}
           </SignUpInputContainer>
