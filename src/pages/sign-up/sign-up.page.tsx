@@ -52,7 +52,8 @@ const SignUpPage = () => {
         id: userCredentials.user.uid,
         firstName: data.firstName,
         lastName: data.lastname,
-        email: userCredentials.user.email
+        email: userCredentials.user.email,
+        provider: 'firebase'
       })
 
       navigation('/')
