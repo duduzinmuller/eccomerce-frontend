@@ -1,4 +1,4 @@
-import { BsGoogle } from 'react-icons/bs'
+import { BsGoogle, BsFacebook } from 'react-icons/bs'
 import { FiLogIn } from 'react-icons/fi'
 import { useForm } from 'react-hook-form'
 import validator from 'validator'
@@ -24,7 +24,12 @@ import {
   signInWithEmailAndPassword,
   signInWithPopup
 } from 'firebase/auth'
-import { auth, db, googleProvider } from '../../config/firebase.config'
+import {
+  auth,
+  db,
+  facebookProvider,
+  googleProvider
+} from '../../config/firebase.config'
 import { addDoc, collection, getDocs, query, where } from 'firebase/firestore'
 
 interface LoginForm {
@@ -94,6 +99,35 @@ const LoginPage = () => {
     }
   }
 
+  const handleSignInWithFacebookPres = async () => {
+    try {
+      const userCredentials = await signInWithPopup(auth, facebookProvider)
+
+      const querySnapshot = await getDocs(
+        query(
+          collection(db, 'users'),
+          where('id', '==', userCredentials.user.uid)
+        )
+      )
+
+      const user = querySnapshot.docs[0]?.data()
+
+      if (!user) {
+        const firstName = userCredentials.user.displayName?.split(' ')[0]
+        const lastName = userCredentials.user.displayName?.split(' ')[1]
+        await addDoc(collection(db, 'users'), {
+          id: userCredentials.user.uid,
+          email: userCredentials.user.email,
+          firstName,
+          lastName,
+          provider: 'facebook'
+        })
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   return (
     <>
       <Header />
@@ -105,8 +139,15 @@ const LoginPage = () => {
           <CustomButton
             startIcon={<BsGoogle size={18} />}
             onClick={handleSignInWithGooglePress}
+            style={{ marginBottom: '12px' }}
           >
             Entrar com o Google
+          </CustomButton>
+          <CustomButton
+            startIcon={<BsFacebook size={18} />}
+            onClick={handleSignInWithFacebookPres}
+          >
+            Entrar com o Facebook
           </CustomButton>
 
           <LoginSubtitle>ou entre com o seu e-mail</LoginSubtitle>
