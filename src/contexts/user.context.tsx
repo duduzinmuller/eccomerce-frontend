@@ -15,7 +15,7 @@ export const UserContext = createContext<IUserContext>({
   logoutUser: () => {}
 })
 
-interface UserContextProviderProps {
+export interface UserContextProviderProps {
   children: ReactNode
 }
 
