@@ -1,4 +1,4 @@
-import { useEffect, useContext } from 'react'
+import { useEffect, useContext, useState } from 'react'
 import { BsGoogle, BsFacebook } from 'react-icons/bs'
 import { FiLogIn } from 'react-icons/fi'
 import { useForm } from 'react-hook-form'
@@ -33,6 +33,7 @@ import {
 } from '../../config/firebase.config'
 import { addDoc, collection, getDocs, query, where } from 'firebase/firestore'
 import { UserContext } from '../../contexts/user.context'
+import Loading from '../../components/loading/loading.component'
 
 interface LoginForm {
   email: string
@@ -48,6 +49,8 @@ const LoginPage = () => {
     formState: { errors }
   } = useForm<LoginForm>()
 
+  const [isLoading, setIsLoading] = useState(false)
+
   const { isAuthenticated } = useContext(UserContext)
 
   useEffect(() => {
@@ -58,6 +61,7 @@ const LoginPage = () => {
 
   const handleSubmitPress = async (data: LoginForm) => {
     try {
+      setIsLoading(true)
       const userCredentials = await signInWithEmailAndPassword(
         auth,
         data.email,
@@ -77,11 +81,14 @@ const LoginPage = () => {
       if (_error.code === AuthErrorCodes.USER_DELETED) {
         return setError('email', { type: 'notFound' })
       }
+    } finally {
+      setIsLoading(false)
     }
   }
 
   const handleSignInWithGooglePress = async () => {
     try {
+      setIsLoading(true)
       const userCredentials = await signInWithPopup(auth, googleProvider)
 
       const querySnapshot = await getDocs(
@@ -107,11 +114,14 @@ const LoginPage = () => {
       navigation('/')
     } catch (error) {
       console.error(error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
   const handleSignInWithFacebookPres = async () => {
     try {
+      setIsLoading(true)
       const userCredentials = await signInWithPopup(auth, facebookProvider)
 
       const querySnapshot = await getDocs(
@@ -137,6 +147,8 @@ const LoginPage = () => {
       navigation('/')
     } catch (error) {
       console.error(error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -144,6 +156,7 @@ const LoginPage = () => {
     <>
       <Header />
 
+      {isLoading && <Loading />}
       <LoginContainer>
         <LoginContent>
           <LoginHeadline>Entre com a sua conta</LoginHeadline>
