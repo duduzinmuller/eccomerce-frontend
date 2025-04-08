@@ -5,7 +5,7 @@ interface Category {
   name: string
   displayName: string
   imageUrl: string
-  product: Product[]
+  products: Product[]
 }
 
 export default Category
