@@ -9,6 +9,7 @@ import { onAuthStateChanged } from 'firebase/auth'
 import { auth, db } from './config/firebase.config'
 import { UserContext } from './contexts/user.context'
 import { collection, getDocs, query, where } from 'firebase/firestore'
+import { userConverter } from './converters/firestore.converters'
 
 const App: FunctionComponent = () => {
   const [isInitializing, setIsInitializing] = useState(true)
@@ -27,12 +28,15 @@ const App: FunctionComponent = () => {
     const isSigningIn = !isAuthenticated && user
     if (isSigningIn) {
       const querySnapshot = await getDocs(
-        query(collection(db, 'users'), where('id', '==', user.uid))
+        query(
+          collection(db, 'users').withConverter(userConverter),
+          where('id', '==', user.uid)
+        )
       )
 
       const userFromFirestore = querySnapshot.docs[0]?.data()
 
-      loginUser(userFromFirestore as any)
+      loginUser(userFromFirestore)
 
       return setIsInitializing(false)
     }
