@@ -1,3 +1,4 @@
+import { useEffect, useContext } from 'react'
 import { BsGoogle, BsFacebook } from 'react-icons/bs'
 import { FiLogIn } from 'react-icons/fi'
 import { useForm } from 'react-hook-form'
@@ -31,6 +32,7 @@ import {
   googleProvider
 } from '../../config/firebase.config'
 import { addDoc, collection, getDocs, query, where } from 'firebase/firestore'
+import { UserContext } from '../../contexts/user.context'
 
 interface LoginForm {
   email: string
@@ -45,6 +47,14 @@ const LoginPage = () => {
     setError,
     formState: { errors }
   } = useForm<LoginForm>()
+
+  const { isAuthenticated } = useContext(UserContext)
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigation('/')
+    }
+  }, [isAuthenticated])
 
   const handleSubmitPress = async (data: LoginForm) => {
     try {
@@ -94,6 +104,7 @@ const LoginPage = () => {
           provider: 'google'
         })
       }
+      navigation('/')
     } catch (error) {
       console.error(error)
     }
@@ -123,6 +134,7 @@ const LoginPage = () => {
           provider: 'facebook'
         })
       }
+      navigation('/')
     } catch (error) {
       console.error(error)
     }
