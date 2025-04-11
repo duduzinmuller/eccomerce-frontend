@@ -10,7 +10,7 @@ export const CategotyItemContainer = styled.div<CategoryItemContainerProps>`
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 400px;
+  height: 300px;
   grid-gap: 15px;
   background-size: cover;
   background-repeat: no-repeat;
